@@ -5,14 +5,6 @@ const RegisterInterest = require('../models/RegisterInterest');
 
 // POST /api/register - create a new register interest
 router.post('/', async (req, res) => {
-  // Check database connection
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ 
-      error: 'Database not connected', 
-      details: 'Please check your MongoDB connection. Server is running but database is unavailable.' 
-    });
-  }
-
   try {
     const payload = req.body || {};
     // Validate all required fields with detailed error messages
