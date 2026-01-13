@@ -2,12 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const connectDB = require("./config/database");
 
-const app = express(); // ✅ app MUST be created first
-const PORT = process.env.PORT || 5000;
-
-// avoid Mongoose strictQuery deprecation warning
-mongoose.set("strictQuery", false);
+const app = express();
 
 // ✅ MIDDLEWARE (ORDER MATTERS)
 app.use(
@@ -20,6 +17,20 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ DATABASE CONNECTION MIDDLEWARE - Ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(503).json({
+      error: "Service temporarily unavailable",
+      message: "Database connection failed. Please try again later.",
+    });
+  }
+});
 
 // ✅ ROUTES
 const contactRouter = require("./routes/contact");
@@ -68,33 +79,19 @@ app.use("/api/*", (req, res) => {
 // ✅ ERROR HANDLER - Ensure all errors return JSON
 app.use((err, req, res, next) => {
   console.error("Error:", err);
-  if (req.path.startsWith("/api")) {
-    res.status(err.status || 500).json({
-      error: err.message || "Internal server error",
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
-    });
-  } else {
-    next(err);
-  }
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
 });
 
-// ✅ CONNECT TO MONGODB (for serverless)
-if (!process.env.MONGODB_URI) {
-  console.error("⚠️ MONGODB_URI not found in .env");
-} else {
-  mongoose
-    .connect(process.env.MONGODB_URI)
-    .then(() => console.log("✅ Connected to MongoDB"))
-    .catch((err) => console.error("❌ MongoDB error:", err.message));
-}
-
-// ✅ For local development
+// ✅ For local development only
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
-// ✅ Export for Vercel
+// ✅ Export for Vercel serverless
 module.exports = app;
