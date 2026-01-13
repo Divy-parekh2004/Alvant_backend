@@ -24,13 +24,6 @@ router.post('/request-otp', async (req, res) => {
       });
     }
 
-    // Check database connection
-    if (require('mongoose').connection.readyState !== 1) {
-      return res.status(503).json({ 
-        error: 'Database not connected. Please check your MongoDB connection.' 
-      });
-    }
-
     // Find or create admin with this email
     let admin = await Admin.findOne({ email: ADMIN_EMAIL });
     if (!admin) {
@@ -80,13 +73,6 @@ router.post('/verify-otp', async (req, res) => {
     if (trimmedEmail !== ADMIN_EMAIL.toLowerCase()) {
       return res.status(403).json({ 
         error: 'Unauthorized email address. Please use the registered admin email.' 
-      });
-    }
-
-    // Check database connection
-    if (require('mongoose').connection.readyState !== 1) {
-      return res.status(503).json({ 
-        error: 'Database not connected. Please check your MongoDB connection.' 
       });
     }
 
