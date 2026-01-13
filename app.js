@@ -75,3 +75,6 @@ app.listen(PORT, () => {
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('❌ MongoDB error:', err.message));
 });
+
+
+export default app;
