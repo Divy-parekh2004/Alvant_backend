@@ -6,14 +6,7 @@ const Contact = require('../models/Contact');
 // POST /api/contact - save a contact submission
 router.post('/', async (req, res) => {
   console.log("CONTACT FORM DATA:", req.body);
-  // Check database connection
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ 
-      error: 'Database not connected', 
-      details: 'Please check your MongoDB connection. Server is running but database is unavailable.' 
-    });
-  }
-
+  
   try {
     const { name, email, phone, message, categories } = req.body || {};
     
