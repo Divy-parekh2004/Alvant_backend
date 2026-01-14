@@ -193,8 +193,3 @@ curl -X POST http://localhost:5000/api/contact \
 
 This project is proprietary software for Alvant.
 
-## 📞 Support
-
-For deployment issues, see [DEPLOYMENT.md](DEPLOYMENT.md).
-For code issues, refer to the inline code comments and route handlers.
-"
