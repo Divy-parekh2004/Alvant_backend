@@ -3,6 +3,9 @@ const router = express.Router();
 const Admin = require('../models/Admin');
 const { sendOTPEmail } = require('../utils/email');
 const jwt = require('jsonwebtoken');
+const auth = require('../middleware/auth');
+const Contact = require('../models/Contact');
+const RegisterInterest = require('../models/RegisterInterest');
 
 const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'dev_admin_secret';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'smartboy728382@gmail.com'; // Admin email from .env
@@ -19,8 +22,8 @@ router.post('/request-otp', async (req, res) => {
 
     // Only allow the predefined admin email
     if (trimmedEmail !== ADMIN_EMAIL.toLowerCase()) {
-      return res.status(403).json({ 
-        error: 'Unauthorized email address. Please use the registered admin email.' 
+      return res.status(403).json({
+        error: 'Unauthorized email address. Please use the registered admin email.'
       });
     }
 
@@ -71,8 +74,8 @@ router.post('/verify-otp', async (req, res) => {
 
     // Only allow the predefined admin email
     if (trimmedEmail !== ADMIN_EMAIL.toLowerCase()) {
-      return res.status(403).json({ 
-        error: 'Unauthorized email address. Please use the registered admin email.' 
+      return res.status(403).json({
+        error: 'Unauthorized email address. Please use the registered admin email.'
       });
     }
 
@@ -122,3 +125,87 @@ router.get('/verify-token', async (req, res) => {
 });
 
 module.exports = router;
+// GET /api/admin/session - authenticated session info
+router.get('/session', auth, async (req, res) => {
+  try {
+    res.json({ ok: true, admin: req.admin });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+// Admin data endpoints
+
+// GET /api/admin/contacts - list contact submissions (auth required)
+router.get('/contacts', auth, async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || '20', 10), 1), 100);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      Contact.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Contact.countDocuments({})
+    ]);
+
+    res.json({
+      page,
+      limit,
+      total,
+      items,
+    });
+  } catch (err) {
+    console.error('Error fetching contacts:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/admin/registrations - list registrations (auth required)
+router.get('/registrations', auth, async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || '20', 10), 1), 100);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      RegisterInterest.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      RegisterInterest.countDocuments({})
+    ]);
+
+    res.json({
+      page,
+      limit,
+      total,
+      items,
+    });
+  } catch (err) {
+    console.error('Error fetching registrations:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// DELETE /api/admin/contacts/:id - delete a contact (auth required)
+router.delete('/contacts/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await Contact.findByIdAndDelete(id);
+    if (!result) return res.status(404).json({ error: 'Contact not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error deleting contact:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// DELETE /api/admin/registrations/:id - delete a registration (auth required)
+router.delete('/registrations/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await RegisterInterest.findByIdAndDelete(id);
+    if (!result) return res.status(404).json({ error: 'Registration not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error deleting registration:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
