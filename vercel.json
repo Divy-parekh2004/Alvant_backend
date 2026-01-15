@@ -11,13 +11,5 @@
       "src": "/(.*)",
       "dest": "/api/index.js"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "ADMIN_JWT_SECRET": "@admin_jwt_secret",
-    "ADMIN_EMAIL": "@admin_email",
-    "CORS_ORIGIN": "@cors_origin",
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass"
-  }
+  ]
 }
