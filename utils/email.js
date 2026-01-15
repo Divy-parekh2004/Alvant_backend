@@ -33,7 +33,7 @@ const createTransporter = () => {
       cachedTransporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: process.env.EMAIL_USER || 'smartboy728382@gmail.com',
+          user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS, // Gmail app password required
         },
         pool: true,
@@ -61,7 +61,7 @@ const createTransporter = () => {
 const sendOTPEmail = async (email, otp) => {
   try {
     const transporter = createTransporter();
-    
+
     // If no transporter available, log OTP instead
     if (!transporter) {
       console.warn('⚠️ Email service not configured. OTP:', otp);
@@ -71,9 +71,9 @@ const sendOTPEmail = async (email, otp) => {
       // In development, just log the OTP
       return;
     }
-    
+
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'smartboy728382@gmail.com',
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: 'Admin Dashboard Login OTP',
       html: `
@@ -93,7 +93,7 @@ const sendOTPEmail = async (email, otp) => {
     // Use timeout to prevent hanging in serverless
     const sendWithTimeout = Promise.race([
       transporter.sendMail(mailOptions),
-      new Promise((_, reject) => 
+      new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Email send timeout')), 10000)
       )
     ]);
@@ -102,13 +102,13 @@ const sendOTPEmail = async (email, otp) => {
     console.log('✅ OTP email sent successfully:', info.messageId);
   } catch (error) {
     console.error('❌ Error sending OTP email:', error.message);
-    
+
     // In development, log OTP even if email fails
     if (process.env.NODE_ENV !== 'production') {
       console.log('📧 OTP (email failed):', otp);
       return; // Don't throw in development
     }
-    
+
     throw new Error('Failed to send OTP email');
   }
 };

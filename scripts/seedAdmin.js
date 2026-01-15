@@ -4,8 +4,8 @@ const Admin = require('../models/Admin');
 
 async function seedAdmin() {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'smartboy728382@gmail.com';
-    
+    const adminEmail = process.env.ADMIN_EMAIL;
+
     if (!adminEmail) {
       console.error('ERROR: ADMIN_EMAIL not found in .env file');
       console.log('Please add ADMIN_EMAIL=your-email@gmail.com to your .env file');
@@ -30,7 +30,7 @@ async function seedAdmin() {
     console.log('✅ Admin user created successfully!');
     console.log(`Email: ${adminEmail}`);
     console.log('Use this email address to login with OTP');
-    
+
     process.exit(0);
   } catch (err) {
     console.error('Error seeding admin:', err);

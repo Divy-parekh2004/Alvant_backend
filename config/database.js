@@ -10,7 +10,7 @@ const connectDB = async () => {
     }
 
     try {
-        const mongoURI = process.env.MONGODB_URI || process.env.DATABASE_URL;
+        const mongoURI = process.env.MONGODB_URI;
 
         if (!mongoURI) {
             throw new Error(

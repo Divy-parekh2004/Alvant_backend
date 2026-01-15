@@ -7,8 +7,8 @@ const auth = require('../middleware/auth');
 const Contact = require('../models/Contact');
 const RegisterInterest = require('../models/RegisterInterest');
 
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'dev_admin_secret';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'smartboy728382@gmail.com'; // Admin email from .env
+const JWT_SECRET = process.env.ADMIN_JWT_SECRET;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL; // Admin email from .env
 
 // POST /api/admin/request-otp
 router.post('/request-otp', async (req, res) => {
